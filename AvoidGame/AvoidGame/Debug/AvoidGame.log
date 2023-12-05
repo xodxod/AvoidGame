@@ -1,0 +1,5 @@
+﻿  AvoidGame.cpp
+C:\Users\addinedu\Documents\AvoidGame\AvoidGame\AvoidGame\AvoidGame.cpp(15,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Game.cpp
+  Generating Code...
+  AvoidGame.vcxproj -> C:\Users\addinedu\Documents\AvoidGame\AvoidGame\Debug\AvoidGame.exe
