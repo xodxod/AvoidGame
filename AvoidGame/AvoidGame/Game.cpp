@@ -21,6 +21,11 @@ Game::Game()
 
 	//Text 초기화
 	this->InitPointText();
+	this->InitGameOverText();
+
+	//Game Over State 초기화
+	this->GameOverState = false;
+
 }
 
 void Game::InitWindowPointer()
@@ -66,13 +71,16 @@ void Game::Update()
 {
 	this->EventHandler();
 
-	this->UpdatePlayer();
+	if (!this->GameOverState) {
 
-	this->UpdateEnemy();
+		this->UpdatePlayer();
 
-	this->CollisionCheck();
+		this->UpdateEnemy();
 
-	this->UpdatePointText();
+		this->CollisionCheck();
+
+		this->UpdatePointText();
+	}
 }
 
 //Render
@@ -91,10 +99,12 @@ void Game::Render()
 
 	//Draw Text
 	this->Window->draw(this->PointText);
+	this->Window->draw(this->GameOverText);
 
 	//Display
 	this->Window->display();
 }
+
 //Shout Down
 Game::~Game()
 {
@@ -191,7 +201,8 @@ void Game::CollisionCheck()
 		if (this->Player.getGlobalBounds().intersects(this->EnemyArray[i].getGlobalBounds())) {
 			//충돌 ; true
 			//게임 종료
-			this->DeletWindow();
+			this->GameOverState = true;
+			this->PrintGameOverText();
 		}
 	}
 }
@@ -213,7 +224,10 @@ void Game::InitPointText()
 	this->PointText.setFont(this->Font);
 	this->PointText.setCharacterSize(30);
 	this->PointText.setFillColor(Color::White);
-	this->PointText.setPosition(100, 100);
+	this->PointText.setPosition(
+		this->Window->getSize().x-150,
+		this->Window->getSize().y-50
+	);
 }
 
 void Game::UpdatePointText()
@@ -221,4 +235,22 @@ void Game::UpdatePointText()
 	stringstream pt;
 	pt << "Point : " << Point;
 	this->PointText.setString(pt.str());
+}
+
+void Game::InitGameOverText()
+{
+	this->GameOverText.setFont(this->Font);
+	this->GameOverText.setCharacterSize(100);
+	this->GameOverText.setFillColor(Color::White);
+	this->GameOverText.setPosition(
+		this->Window->getSize().x/2,
+		this->Window->getSize().y/2
+	);
+}
+
+void Game::PrintGameOverText()
+{
+	stringstream pt;
+	pt << "Game Over" ;
+	this->GameOverText.setString(pt.str());
 }
