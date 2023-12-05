@@ -11,6 +11,16 @@ Game::Game()
 
 	//Enemy 초기화
 	this->InitEnemy();
+	this->InitSpawn();
+
+	//Point 초기화
+	this->Point = 0;
+
+	//Font 초기화
+	this->InitFont();
+
+	//Text 초기화
+	this->InitPointText();
 }
 
 void Game::InitWindowPointer()
@@ -59,6 +69,10 @@ void Game::Update()
 	this->UpdatePlayer();
 
 	this->UpdateEnemy();
+
+	this->CollisionCheck();
+
+	this->UpdatePointText();
 }
 
 //Render
@@ -68,8 +82,16 @@ void Game::Render()
 	this->Window->clear(Color(50, 50, 50, 255)); //Color::cyon
 	//Draw Player
 	this->Window->draw(this->Player);
+
 	//Draw Enemy
-	this->Window->draw(this->Enemy);
+	//this->Window->draw(this->Enemy);
+	for (int i = 0; i < this->EnemyArray.size(); i++) {
+		this->Window->draw(this->EnemyArray[i]);
+	}
+
+	//Draw Text
+	this->Window->draw(this->PointText);
+
 	//Display
 	this->Window->display();
 }
@@ -121,6 +143,13 @@ void Game::InitEnemy()
 	this->Enemy.setPosition(100, 100);
 }
 
+void Game::InitSpawn()
+{
+	this->EnemyMax = 20;
+	this->IntervalMax = 20.0f;
+	this->IntervalStart = 0.0f;
+}
+
 void Game::SpawnEnemy()
 {
 	this->Enemy.setPosition(static_cast<float>(rand()%1280), 0.0f);
@@ -129,6 +158,67 @@ void Game::SpawnEnemy()
 
 void Game::UpdateEnemy()
 {
-	this->SpawnEnemy();
+	//this->SpawnEnemy();
+	//Enemy Maximum
+	if (this->EnemyArray.size() <= this->EnemyMax) {
+		//Enemy Spawn  Interval Delay
+		if (this->IntervalMax <= this->IntervalStart) {
+			this->SpawnEnemy();
+			this->IntervalStart = 0.0f;
+		}
+		else {
+			this->IntervalStart += 1.0f;
+		}
+	}
 	//this->Enemy.move(0.0f, 1.0f);
+	for (int i = 0; i < this->EnemyArray.size(); i++) {
+		this->EnemyArray[i].move(0.0f, 4.0f);
+	}
+	for (int i = 0; i < this->EnemyArray.size(); i++) {
+		//윈도우 바깥으로 벗어나는 Enemy 삭제
+		if (this->EnemyArray[i].getPosition().y >= this->Window->getSize().y) {
+			this->EnemyArray.erase(this->EnemyArray.begin() + i);
+			//삭제되는 Enemy 개수 => 점수
+			Point++;
+		}
+	}
+}
+
+//Collision Check
+void Game::CollisionCheck()
+{
+	for (int i = 0; i < EnemyArray.size(); i++) {
+		if (this->Player.getGlobalBounds().intersects(this->EnemyArray[i].getGlobalBounds())) {
+			//충돌 ; true
+			//게임 종료
+			this->DeletWindow();
+		}
+	}
+}
+
+//Font
+void Game::InitFont()
+{
+	if (this->Font.loadFromFile("Font/NanumSquareR.ttf")) {
+		cout << "Load Complete" << endl;
+	}
+	else {
+		cout << "Load Fail" << endl;
+	}
+}
+
+//Text
+void Game::InitPointText()
+{
+	this->PointText.setFont(this->Font);
+	this->PointText.setCharacterSize(30);
+	this->PointText.setFillColor(Color::White);
+	this->PointText.setPosition(100, 100);
+}
+
+void Game::UpdatePointText()
+{
+	stringstream pt;
+	pt << "Point : " << Point;
+	this->PointText.setString(pt.str());
 }
